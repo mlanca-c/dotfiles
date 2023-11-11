@@ -1,0 +1,18 @@
+# Ignore system and editor files
+*.swp
+*.swo
+*.bak
+*~
+
+# Ignore sensitive information
+secrets.sh
+credentials.json
+
+# Ignore compiled files or directories
+/build/
+/dist/
+/node_modules/
+
+# Ignore local configuration files
+.local/
+.config.local/
