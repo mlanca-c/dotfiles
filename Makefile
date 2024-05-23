@@ -152,7 +152,7 @@ define make_backup
 backup-$1:
 	$${AT}$${PRINT} "$${_INFO} backing up $1 ...\n"
 	$${AT}$${MKDIR} $${BACKUP_DIR}
-	$${AT}$${CP} $${HOME}/$1 $${BACKUP_DIR}
+	$${AT}$${CP} $${HOME}/$1 $${BACKUP_DIR} || true
 endef
 
 define make_clean
