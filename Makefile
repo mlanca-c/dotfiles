@@ -94,12 +94,15 @@ BACKUP_DIR	:= ${HOME}/.dotfiles_backup
 ZSH_FILES	:= .zshrc
 # Here we define the files/folders that will be installed in the system
 # The format is: DOTFILES_<NAME> := .file1:.file2:folder1/:folder2/:
-DOTFILES_VIM	:= .vimrc:.vim/
+DOTFILES	:= .vimrc .vim
 
-# Adding the root directory to the files
-VIM_DIRS_LIST := $(addprefix ${HOME}/,${DOTFILES_VIM})
-VIM_DIRS_LIST := $(foreach dl,${VIM_DIRS_LIST},$(subst :,:${HOME}/,${dl}))
-VIM_DIRS_LIST := $(subst :,${space},${VIM_DIRS_LIST})
+# DOTFILES_ROOT_LIST := $(addprefix ${HOME}/,${DOTFILES})
+# DOTFILES_ROOT_LIST := $(foreach dl,${DOTFILES},$(subst :,:${HOME}/,${dl}))
+# DOTFILES_ROOT_LIST := $(subst :,${space},${DOTFILES})
+# # Adding the root directory to the files
+# DOTFILES_DIRS_LIST := $(addprefix ${HOME}/,${DOTFILES})
+# DOTFILES_DIRS_LIST := $(foreach dl,${DOTFILES_DIRS_LIST},$(subst :,:${HOME}/,${dl}))
+# DOTFILES_DIRS_LIST := $(subst :,${space},${DOTFILES_DIRS_LIST})
 
 
 # **************************************************************************** #
@@ -132,28 +135,54 @@ ubuntu_update:
 # Project Targets
 # **************************************************************************** #
 
-
 install: backup_clean
 
-backup: backup-zsh backup-tmux
 
-backup_clean:
+backup: $(foreach dir,${DOTFILES},backup-${dir})
+	${AT}${PRINT} "${_SUCCESS} all dotfiles where backed up!\n"
+	${AT}${PRINT} "${_SUCCESS} backup folder: ${BACKUP_DIR}\n"
 
-backup_clean_vim:
-	${AT}${PRINT} "${_INFO} Backing up $* dotfiles...\n"
-	${AT}${MKDIR} ${BACKUP_DIR}/$*
-	${AT}${MV} ${HOME}/.$* ${BACKUP_DIR}/.$*
-	${AT}${PRINT} "${_SUCCESS} $* dotfiles backed up to ${BACKUP_DIR}!\n"
-
-backup-%:
-	${AT}${PRINT} "${_INFO} Backing up $* dotfiles...\n"
-	${AT}${MKDIR} ${BACKUP_DIR}/$*
-	${AT}${CP} ${HOME}/.$* ${BACKUP_DIR}/.$*
-	${AT}${PRINT} "${_SUCCESS} $* dotfiles backed up.\n"
+link: $(foreach dir,${DOTFILES_DIRS_LIST},link-${dir})
 
 # **************************************************************************** #
-# Functions
+# Target Templates
 # **************************************************************************** #
+
+define make_backup
+backup-$1:
+	$${AT}$${PRINT} "$${_INFO} backing up $1 ...\n"
+	$${AT}$${MKDIR} $${BACKUP_DIR}
+	$${AT}$${CP} $${HOME}/$1 $${BACKUP_DIR}
+endef
+
+define make_clean
+clean-$1:
+	$${AT}$${PRINT} "$${_INFO} removing $1...\n"
+	$${AT}$${RM} $${HOME}/$1
+	$${AT}$${PRINT} "$${_SUCCESS} $1 dotfiles cleaned up.\n"
+endef
+
+define make_link
+link-$1:
+	$${AT}$${PRINT} "$${_INFO} linking $1...\n"
+	$${AT}$${LINK} $${ROOT_DIR}/$1 $${HOME}/.$1
+endef
+
+
+# **************************************************************************** #
+# Target Generator
+# **************************************************************************** #
+
+$(foreach dir,${DOTFILES},$(eval\
+$(call make_backup,${dir})\
+))
+
+
+# Get where the file should go from DOTFILES_DIRS_LIST,
+# and at the same time get where the is in the root directory
+$(foreach dir,${DOTFILES_DIRS_LIST},$(eval\
+$(call make_link,${dir})\
+))
 
 # **************************************************************************** #
 # Colors and Messages
