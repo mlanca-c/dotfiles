@@ -125,6 +125,7 @@ link: $(foreach dir,${DOTFILES},link-${dir})
 	${AT}${PRINT} "${_SUCCESS} created all symbolic links!\n"
 	${AT}${PRINT} "${_SUCCESS} origin folder: ${ROOT_DIR}\n"
 
+
 # **************************************************************************** #
 # Target Templates
 # **************************************************************************** #
@@ -158,12 +159,12 @@ $(foreach dir,${DOTFILES},$(eval\
 $(call make_backup,${dir})\
 ))
 
-
 # Get where the file should go from DOTFILES_DIRS_LIST,
 # and at the same time get where the is in the root directory
 $(foreach dir,${DOTFILES},$(eval\
 $(call make_link,${dir})\
 ))
+
 
 # **************************************************************************** #
 # Colors and Messages
