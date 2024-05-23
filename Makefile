@@ -105,10 +105,11 @@ print-%: ; @echo $*=$($*)
 # Project Targets
 # **************************************************************************** #
 
+
 system_update:
 	${AT}${PRINT} "${_INFO} Checking system...\n"
-	${AT}sudo apt update
-	${AT}sudo apt upgrade -y
+	${AT}apt update
+	${AT}apt upgrade -y
 	${AT}${PRINT} "${_SUCCESS} System updated.\n"
 
 
