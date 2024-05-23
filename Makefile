@@ -115,33 +115,30 @@ print-%: ; @echo $*=$($*)
 # Project Targets
 # **************************************************************************** #
 
+link: backup _link
+	${AT}${PRINT} "${_SUCCESS} created all symbolic links!\n"
+	${AT}${PRINT} "${_SUCCESS} origin folder: ${ROOT_DIR}\n"
+
+# Link all dotfiles
+_link: $(foreach dir,${DOTFILES},link-${dir})
+
 # Backup all dotfiles
 backup: $(foreach dir,${DOTFILES},backup-${dir})
 	${AT}${PRINT} "${_SUCCESS} all dotfiles where backed up!\n"
 	${AT}${PRINT} "${_SUCCESS} backup folder: ${BACKUP_DIR}\n"
-
-# Link all dotfiles
-link: $(foreach dir,${DOTFILES},link-${dir})
-	${AT}${PRINT} "${_SUCCESS} created all symbolic links!\n"
-	${AT}${PRINT} "${_SUCCESS} origin folder: ${ROOT_DIR}\n"
 
 
 # **************************************************************************** #
 # Target Templates
 # **************************************************************************** #
 
+# How can I make my backup not copy the link but the file as it is?
+
 define make_backup
 backup-$1:
 	$${AT}$${PRINT} "$${_INFO} backing up $1 ...\n"
 	$${AT}$${MKDIR} $${BACKUP_DIR}
-	$${AT}$${CP} $${HOME}/$1 $${BACKUP_DIR} || true
-endef
-
-define make_clean
-clean-$1:
-	$${AT}$${PRINT} "$${_INFO} removing $1...\n"
-	$${AT}$${RM} $${HOME}/$1
-	$${AT}$${PRINT} "$${_SUCCESS} $1 dotfiles cleaned up.\n"
+	$${AT}$${CP} -L $${HOME}/$1 $${BACKUP_DIR} || true
 endef
 
 define make_link
