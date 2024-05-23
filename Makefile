@@ -51,7 +51,7 @@ endif
 
 RM		:= rm -f
 PRINT	:= printf
-CP		:= cp -r
+CP		:= cp -rL
 MV		:= mv
 MKDIR	:= mkdir -p
 NORM	:= norminette
@@ -132,13 +132,12 @@ backup: $(foreach dir,${DOTFILES},backup-${dir})
 # Target Templates
 # **************************************************************************** #
 
-# How can I make my backup not copy the link but the file as it is?
 
 define make_backup
 backup-$1:
 	$${AT}$${PRINT} "$${_INFO} backing up $1 ...\n"
 	$${AT}$${MKDIR} $${BACKUP_DIR}
-	$${AT}$${CP} -L $${HOME}/$1 $${BACKUP_DIR} || true
+	$${AT}$${CP} $${HOME}/$1 $${BACKUP_DIR} || true
 endef
 
 define make_link
@@ -152,15 +151,11 @@ endef
 # Target Generator
 # **************************************************************************** #
 
-$(foreach dir,${DOTFILES},$(eval\
-$(call make_backup,${dir})\
-))
+# Generating make_backup targets for all dotfiles
+$(foreach dir,${DOTFILES},$(eval $(call make_backup,${dir})))
 
-# Get where the file should go from DOTFILES_DIRS_LIST,
-# and at the same time get where the is in the root directory
-$(foreach dir,${DOTFILES},$(eval\
-$(call make_link,${dir})\
-))
+# Generating make_link targets for all dotfiles
+$(foreach dir,${DOTFILES},$(eval $(call make_link,${dir})))
 
 
 # **************************************************************************** #
