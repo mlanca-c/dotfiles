@@ -20,8 +20,12 @@ USER := $(shell whoami)
 # **************************************************************************** #
 
 # Operative System
-OS	:= $(shell uname)
+OS	:= ubuntu
 
+# Ubuntu package manager
+PACKAGE_MANAGER := apt
+UPDATE_SYSTEM	:= sudo ${PACKAGE_MANAGER} update
+UPGRADE_SYSTEM	:= sudo ${PACKAGE_MANAGER} upgrade -y
 
 # Verbose levels
 # 0: Make will be totaly silenced
@@ -59,9 +63,9 @@ NORM	:= norminette
 FIND	:= find
 LINK	:= ln -s
 
-ifeq (${OS},Linux)
+ifeq ($(shell uname),Linux)
 	SED := sed -i.tmp --expression
-else ifeq (${OS},Darwin)
+else ifeq ($(shell uname),Darwin)
 	SED := sed -i.tmp
 endif
 
@@ -88,6 +92,14 @@ BACKUP_DIR	:= ${HOME}/.dotfiles_backup
 
 
 ZSH_FILES	:= .zshrc
+# Here we define the files/folders that will be installed in the system
+# The format is: DOTFILES_<NAME> := .file1:.file2:folder1/:folder2/:
+DOTFILES_VIM	:= .vimrc:.vim/
+
+# Adding the root directory to the files
+VIM_DIRS_LIST := $(addprefix ${HOME}/,${DOTFILES_VIM})
+VIM_DIRS_LIST := $(foreach dl,${VIM_DIRS_LIST},$(subst :,:${HOME}/,${dl}))
+VIM_DIRS_LIST := $(subst :,${space},${VIM_DIRS_LIST})
 
 
 # **************************************************************************** #
@@ -102,29 +114,36 @@ print-%: ; @echo $*=$($*)
 
 
 # **************************************************************************** #
+# System Targets
+# **************************************************************************** #
+
+# Update the system
+system_update: ${OS}_update
+
+ubuntu_update:
+	${AT}${PRINT} "${_INFO} Checking system...\n"
+	${AT}${PRINT} "${_INFO} ${OS} detected...\n"
+	${AT}${UPDATE_SYSTEM}
+	${AT}${UPGRADE_SYSTEM}
+	${AT}${PRINT} "${_SUCCESS} System updated!\n"
+
+
+# **************************************************************************** #
 # Project Targets
 # **************************************************************************** #
 
 
-system_update:
-	${AT}${PRINT} "${_INFO} Checking system...\n"
-	${AT}apt update
-	${AT}apt upgrade -y
-	${AT}${PRINT} "${_SUCCESS} System updated.\n"
-
-
-install: install-vim install-zsh install-tmux install-git
+install: backup_clean
 
 backup: backup-zsh backup-tmux
 
-clean: backup-clean
-backup-clean: clean-zsh clean-tmux
+backup_clean:
 
-clean-%:
+backup_clean_vim:
 	${AT}${PRINT} "${_INFO} Backing up $* dotfiles...\n"
 	${AT}${MKDIR} ${BACKUP_DIR}/$*
 	${AT}${MV} ${HOME}/.$* ${BACKUP_DIR}/.$*
-	${AT}${PRINT} "${_SUCCESS} $* dotfiles backed up.\n"
+	${AT}${PRINT} "${_SUCCESS} $* dotfiles backed up to ${BACKUP_DIR}!\n"
 
 backup-%:
 	${AT}${PRINT} "${_INFO} Backing up $* dotfiles...\n"
