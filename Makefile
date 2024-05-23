@@ -20,12 +20,7 @@ USER := $(shell whoami)
 # **************************************************************************** #
 
 # Operative System
-OS	:= ubuntu
-
-# Ubuntu package manager
-PACKAGE_MANAGER := apt
-UPDATE_SYSTEM	:= sudo ${PACKAGE_MANAGER} update
-UPGRADE_SYSTEM	:= sudo ${PACKAGE_MANAGER} upgrade -y
+OS	:= $(shell uname)
 
 # Verbose levels
 # 0: Make will be totaly silenced
@@ -61,11 +56,11 @@ MV		:= mv
 MKDIR	:= mkdir -p
 NORM	:= norminette
 FIND	:= find
-LINK	:= ln -s
+LINK	:= ln -sf
 
-ifeq ($(shell uname),Linux)
+ifeq (${OS},Linux)
 	SED := sed -i.tmp --expression
-else ifeq ($(shell uname),Darwin)
+else ifeq (${OS},Darwin)
 	SED := sed -i.tmp
 endif
 
@@ -114,21 +109,6 @@ DOTFILES	:= .vimrc .vim
 
 # Debug variable
 print-%: ; @echo $*=$($*)
-
-
-# **************************************************************************** #
-# System Targets
-# **************************************************************************** #
-
-# Update the system
-system_update: ${OS}_update
-
-ubuntu_update:
-	${AT}${PRINT} "${_INFO} Checking system...\n"
-	${AT}${PRINT} "${_INFO} ${OS} detected...\n"
-	${AT}${UPDATE_SYSTEM}
-	${AT}${UPGRADE_SYSTEM}
-	${AT}${PRINT} "${_SUCCESS} System updated!\n"
 
 
 # **************************************************************************** #
