@@ -135,14 +135,15 @@ ubuntu_update:
 # Project Targets
 # **************************************************************************** #
 
-install: backup_clean
-
-
+# Backup all dotfiles
 backup: $(foreach dir,${DOTFILES},backup-${dir})
 	${AT}${PRINT} "${_SUCCESS} all dotfiles where backed up!\n"
 	${AT}${PRINT} "${_SUCCESS} backup folder: ${BACKUP_DIR}\n"
 
-link: $(foreach dir,${DOTFILES_DIRS_LIST},link-${dir})
+# Link all dotfiles
+link: $(foreach dir,${DOTFILES},link-${dir})
+	${AT}${PRINT} "${_SUCCESS} created all symbolic links!\n"
+	${AT}${PRINT} "${_SUCCESS} origin folder: ${ROOT_DIR}\n"
 
 # **************************************************************************** #
 # Target Templates
@@ -165,7 +166,7 @@ endef
 define make_link
 link-$1:
 	$${AT}$${PRINT} "$${_INFO} linking $1...\n"
-	$${AT}$${LINK} $${ROOT_DIR}/$1 $${HOME}/.$1
+	$${AT}$${LINK} $${ROOT_DIR}/$1 $${HOME}/$1
 endef
 
 
@@ -180,7 +181,7 @@ $(call make_backup,${dir})\
 
 # Get where the file should go from DOTFILES_DIRS_LIST,
 # and at the same time get where the is in the root directory
-$(foreach dir,${DOTFILES_DIRS_LIST},$(eval\
+$(foreach dir,${DOTFILES},$(eval\
 $(call make_link,${dir})\
 ))
 
